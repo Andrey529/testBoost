@@ -4,97 +4,78 @@
 #include <string>
 #include <vector>
 
+enum class STATUS
+{
+     YES,
+     NO,
+     NONE
+};
+
+struct Container
+{
+     int i1;
+     STATUS status_1;
+     STATUS status_2;
+     int i2;
+};
+
 class Base
 {
 public:
      virtual ~Base() = default;
      
-     virtual void increment()
+     STATUS GetStatus()
      {
-          ++base_1;
+          return status;
      }
 
-     virtual void hello()
+     virtual STATUS GetStatus( Container& con )
      {
-          std::cout << "Hello from Base" << std::endl;
+          return status;
      }
 
 public:
-     int base_1;
+     STATUS status;
 };
 
-std::ofstream& operator<<( std::ofstream& out, const Base& b )
-{
-     out << "base_1 = " << b.base_1;
-     return out;
-}
 
-class Derived : public Base
+class Derived1 : public Base
 {
 public:
-     void increment() override
+     STATUS GetStatus( Container& con ) override
      {
-          ++derived_1;
-     }
-
-     void hello() override
-     {
-          std::cout << "Hello from Derived" << std::endl;
+          STATUS status = Base::GetStatus();
+          con.status_1 = status;
+          return status;
      }
 
 public:
-     int derived_1;
+     int derived1_1;
 };
 
-std::ofstream& operator<<( std::ofstream& out, const Derived& d )
+
+class Derived2 : public Base
 {
-     out << "base_1 = " << d.base_1 << ", derived_1 = " << d.derived_1;
-     return out;
-}
+public:
+     STATUS GetStatus( Container& con ) override
+     {
+          STATUS status = Base::GetStatus();
+          con.status_2 = status;
+          return status;
+     }
 
+public:
+     int derived2_1;
+};
 
-std::shared_ptr< Base > Make()
-{
-     auto elem = std::make_shared< Derived >();
-     std::cout << "Make() elem typeid.name = " << typeid( elem ).name() << std::endl;
-     elem->hello();
-     return elem;
-}
-
-void fun( const std::shared_ptr< Base >& elem )
-{
-     std::cout << "fun() elem typeid.name = " << typeid( elem ).name() << std::endl;
-     std::cout << "fun() *elem typeid.name = " << typeid( *elem ).name() << std::endl;
-     std::cout << "fun() elem address = " << &(*elem) << std::endl;
-     elem->hello();
-}
-
-// Base* Make()
-// {
-//      auto elem = new Derived();
-//      std::cout << "Make() elem = " << typeid( *elem ).name() << std::endl;
-//      return elem;
-// }
-
-// void fun( Base* elem )
-// {
-//      std::cout << "fun() elem typeid.name = " << typeid( *elem ).name() << std::endl;
-// }
 
 int main()
 {
-     auto elem = Make();
-     std::cout << "main() elem typeid.name = " << typeid( elem ).name() << std::endl;
-     std::cout << "main() *elem typeid.name = " << typeid( *elem ).name() << std::endl;
-     std::cout << "main() elem address = " << &(*elem) << std::endl;
-     elem->hello();
-     fun( elem );
-     std::cout << "main() elem typeid.name = " << typeid( elem ).name() << std::endl;
+     Derived1 d1 = Derived1();
+     Base b = d1;
 
+     STATUS status = b.GetStatus();
 
-     // auto d = Derived();
-     // std::cout << "d typeid.name = " << typeid( d ).name() << std::endl;
-
-     // auto b = d;
-     // std::cout << "b typeid.name = " << typeid( b ).name() << std::endl;
+     Container con;
+     b.GetStatus( con );
 }
